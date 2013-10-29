@@ -2,6 +2,15 @@
 class forma {
 	private $campos = array();
 	private $nombre;
+	private $attributos = array(
+			'accept-charset' => 'utf8',
+			'action' => $_SERVER['PHP_SELF'],
+			'autocomplete' => 'on',
+			'enctype' => 'application/x-www-form-urlencoded',
+			'method' => 'POST',
+			'novalidate' => 'false',
+			'target' => '_self'
+	);
 
 	function __construct($name, $campos = array()) {
 		if (!is_string($name)) throw new InvalidArgumentException("El nombre de la forma no es String");
@@ -125,6 +134,16 @@ class forma {
 			throw new InvalidArgumentException("El argumento no es un arreglo.");
 		}
 	}
+
+	public function start() {
+		$retval = '<form name="'.$nombre.'"';
+		foreach($atributos as $att => $valor) {
+			$retval .= ' '.$att.'="'.$valor.'"';
+		}
+		$retval .= '>';
+		return $retval;
+	}
+
 }
 
 class inputElement {
