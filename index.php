@@ -3,6 +3,8 @@
 require_once('conexion.php');
 require_once('classes.php');
 
+$frm = new forma('prueba_forma',array('proveedores','alias'));
+
 ?><!DOCTYPE html>
 <html>
 	<head>

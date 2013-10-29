@@ -4,6 +4,7 @@ class forma {
 	private $nombre;
 
 	function __construct($name, $campos = array()) {
+		if (!is_string($name)) throw new InvalidArgumentException("El nombre de la forma no es String");
 		$nombre = $name;
 		addField($campos);
 	}
@@ -96,44 +97,34 @@ class forma {
 			 * Sacar de la BD las características del campo para hacer su <input>
 			*/
 			foreach ($campos as $tabla => $campo) {
-				if ($tabla == 'Submit') {
-					array_push('submit','submit', this.nombre);
-					$campos[count($campos)].setAttributes('action',$campo);
-				} else {
-					$sql = 'SELECT '.
-							'columns.column_name, columns.data_type, '.
-							'ifnull(columns.numeric_precision, columns.character_maximum_length) as length, '.
-							'columns.numeric_scale as scale, columns.is_nullable as requerido, '.
-							'key_column_usage.referenced_table_name, '.
-							'key_column_usage.referenced_column_name '.
-							'FROM information_schema.columns '.
-							'LEFT JOIN information_schema.key_column_usage '.
-							'ON key_column_usage.table_name = columns.table_name '.
-							'AND key_column_usage.column_name = columns.column_name '.
-							'WHERE columns.table_schema = (SELECT DATABASE()) '.
-							'AND columns.table_name = \''.$tabla.'\' AND columns.column_name = \''.$campo.'\'';
-					$resultado = consulta_sql($sql);
-					if ($resultado !== null) {
-						array_push($campos,new inputElement($resultado[0]['column_name'],defineTipo($resultado[0]['data_type'],this.nombre)));
+				$sql = 'SELECT '.
+						'columns.data_type, '.
+						'ifnull(columns.numeric_precision, columns.character_maximum_length) as length, '.
+						'columns.numeric_scale as scale, columns.is_nullable as requerido, '.
+						'key_column_usage.referenced_table_name, '.
+						'key_column_usage.referenced_column_name '.
+						'FROM information_schema.columns '.
+						'LEFT JOIN information_schema.key_column_usage '.
+						'ON key_column_usage.table_name = columns.table_name '.
+						'AND key_column_usage.column_name = columns.column_name '.
+						'WHERE columns.table_schema = (SELECT DATABASE()) '.
+						'AND columns.table_name = \''.$tabla.'\' AND columns.column_name = \''.$campo.'\'';
+				$resultado = consulta_sql($sql);
+				if ($resultado !== null) {
+					if ($resultado['referenced_table_name'] == null) {
+						array_push($this->campos,new inputElement($resultado[0]['column_name'],defineTipo($resultado[0]['data_type'],this.nombre)));
+
+					} else {
+						// Aqui poner que es un select referenciado!!!
 					}
+				} else {
+					throw new UnexpectedValueException("No se obtuvieron resultados para el campo.\n$sql");
 				}
 			}
 		} else {
 			throw new InvalidArgumentException("El argumento no es un arreglo.");
 		}
 	}
-
-	public function html($action) {
-		// Validar que haya un botón de submit y otro campo aunque sea
-		$submit = false;
-		foreach ($campos as $value) {
-			if ($value->getType() == 'submit' or $value->getType() == 'image') $submit = true;
-		}
-		if (!$submit) {
-			addField(array('Submit', 'index.php'));
-		}
-	}
-
 }
 
 class inputElement {
