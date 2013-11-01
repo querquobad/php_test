@@ -1,5 +1,7 @@
 <?php
 
+require_once('classes.php');
+
 ?><!DOCTYPE html>
 <html>
 	<head>
@@ -8,7 +10,7 @@
 	</head>
 	<body>
 		<?php
-
+			$frm = new forma('forma1');
 		?>
 	</body>
 </html>
